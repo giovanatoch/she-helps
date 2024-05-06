@@ -1,5 +1,7 @@
 package com.apishehelps.shehelps.controller;
 
+import com.apishehelps.shehelps.models.Persona;
+import com.apishehelps.shehelps.repositories.PersonaRepository;
 import com.apishehelps.shehelps.service.AuthenticationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,8 @@ public class UserController {
 
     @Autowired
     AuthenticationService autenticacaoService;
+    @Autowired
+    PersonaRepository pessoaRepository;
 
     @PostMapping("/usuario/cadastro")
     public ResponseEntity<Object> save(@RequestParam String nome,
@@ -49,7 +53,7 @@ public class UserController {
                     .body("Este email já foi utilizado. Por favor, digite outro email.");
         }
 
-        if (!autenticacaoService.confirmedPassword(senha, confirmacaoSenha)) {
+        if (! autenticacaoService.confirmedPassword(senha, confirmacaoSenha)) {
             logger.error("As senhas não correspondem.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("As senhas não correspondem.");
@@ -65,5 +69,31 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Erro ao registrar o usuário. Por favor, tente novamente mais tarde.");
         }
+    }
+
+    @PostMapping("/usuario/login")
+    public ResponseEntity<Object> login(@RequestParam String loginEmail,
+                                        @RequestParam String loginSenha){
+        logger.debug("Recebido pedido de login de usuário.");
+
+        if (loginEmail.isEmpty() || loginSenha.isEmpty()) {
+            logger.error("Email e senha são obrigatórios.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Por favor, preencha todos os campos obrigatórios.");
+        }
+
+        // Busca o usuário pelo email no banco de dados
+        Persona usuario = pessoaRepository.findByEmail(loginEmail);
+
+        // Verifica se o usuário foi encontrado e se a senha está correta
+        if (usuario != null && usuario.getSenha().equals(loginSenha)) {
+            logger.info("Usuário autenticado com sucesso: " + loginEmail);
+            return ResponseEntity.status(HttpStatus.OK).body("Login efetuado com sucesso.");
+        } else {
+            logger.error("Credenciais inválidas.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Credenciais inválidas. Por favor, verifique seu email e senha.");
+        }
+
     }
 }
