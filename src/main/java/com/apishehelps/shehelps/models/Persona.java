@@ -4,9 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-
-@Setter
-@Getter
+@Entity
 public class Persona {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,7 +12,6 @@ public class Persona {
 
     @Column
     private String Nome;
-
     @Column
     private String Email;
 
@@ -25,11 +22,46 @@ public class Persona {
     @JoinColumn(name = "tipo_id")
     private Type type;
 
-    public Type getTipo() {
+    public Persona() {
+    }
+
+    public String getNome() {
+        return Nome;
+    }
+
+    public void setNome(String nome) {
+        Nome = nome;
+    }
+
+    public int getId() {
+        return Id;
+    }
+
+    public void setId(int id) {
+        Id = id;
+    }
+
+    public String getEmail() {
+        return Email;
+    }
+
+    public void setEmail(String email) {
+        Email = email;
+    }
+
+    public String getSenha() {
+        return Senha;
+    }
+
+    public void setSenha(String senha) {
+        Senha = senha;
+    }
+
+    public Type getType() {
         return type;
     }
 
-    public void setTipo(Type type) {
+    public void setType(Type type) {
         this.type = type;
     }
 }
